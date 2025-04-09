@@ -2,19 +2,15 @@
   <div id="app">
     <h1>Привет из Vue + Vite + TypeScript!</h1>
     <p>Проект успешно интегрирован с Vue.</p>
-    <Counter></Counter>
+    <router-view />
   </div>
 </template>
 
 <script lang="ts">
 import { defineComponent } from 'vue';
-import Counter from './components/Counter.vue';
 
 export default defineComponent({
   name: 'App',
-  components: {
-    Counter,
-  },
 });
 </script>
 
