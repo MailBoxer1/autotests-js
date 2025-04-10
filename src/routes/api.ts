@@ -10,7 +10,7 @@ import {
   getAllMessages,
   createUser,
 } from '../db/database.js';
-import { authMiddleware } from '../middleware/auth.js';
+import { sessionAuthMiddleware } from '../middleware/auth.js';
 
 const router = Router();
 
@@ -134,6 +134,11 @@ router.post('/login', (req: Request, res: Response, next) => {
         return res.status(401).json({ error: 'Неверный пароль' });
       }
 
+      // Сохраняем данные пользователя в сессию
+      req.session.userId = user.id;
+      req.session.email = user.email;
+      req.session.role = user.role; // если есть
+
       const secret = process.env.JWT_SECRET || 'SECRET_KEY';
       const token = jwt.sign(
         { userId: user.id, email: user.email },
@@ -149,8 +154,19 @@ router.post('/login', (req: Request, res: Response, next) => {
   })().catch(next);
 });
 
-router.get('/profile', authMiddleware, (req: Request, res: Response) => {
-  res.json({ message: 'Доступ разрешён', user: (req as any).user });
+router.get('/profile', sessionAuthMiddleware, (req: Request, res: Response) => {
+  res.json({ message: 'Доступ разрешён', userId: req.session.userId, email: req.session.email });
+});
+
+router.post('/logout', (req: Request, res: Response) => {
+  req.session.destroy((err) => {
+    if (err) {
+      console.error('Ошибка при уничтожении сессии:', err);
+      return res.status(500).json({ error: 'Ошибка выхода' });
+    }
+    res.clearCookie('connect.sid');
+    res.json({ message: 'Вы успешно вышли' });
+  });
 });
 
 export default router;
