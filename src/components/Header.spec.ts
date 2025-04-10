@@ -26,16 +26,23 @@ describe('Header.vue', () => {
   });
 
   it('вызывает logout при клике на кнопку Выйти', async () => {
-    const mockLogout = vi.fn();
+    const originalReload = window.location.reload;
+    // удаляем свойство, чтобы можно было замокать
+    delete (window.location as any).reload;
+    window.location.reload = vi.fn();
+
     const wrapper = mount(Header, {
       props: {
         isAuthenticated: true,
-        user: { email: 'test@example.com' },
-        onLogout: mockLogout
+        user: { email: 'test@example.com' }
       }
     });
 
     await wrapper.find('button.logout').trigger('click');
-    expect(mockLogout).toHaveBeenCalled();
+
+    expect(window.location.reload).toHaveBeenCalled();
+
+    // восстанавливаем оригинальное свойство
+    window.location.reload = originalReload;
   });
 });

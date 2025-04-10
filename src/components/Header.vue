@@ -4,7 +4,7 @@
     <div class="auth-buttons">
       <template v-if="isAuthenticated">
         <span>{{ user?.email }}</span>
-        <button @click="logout">Выйти</button>
+        <button class="logout" @click="logout">Выйти</button>
       </template>
       <template v-else>
         <button @click="$emit('open-auth', 'login')">Войти</button>
@@ -26,8 +26,12 @@ const emit = defineEmits<{
   (e: 'open-auth', mode: 'login' | 'register'): void;
 }>();
 
-function logout() {
-  localStorage.removeItem('token');
+async function logout() {
+  try {
+    await fetch('/api/logout', { method: 'POST' });
+  } catch {
+    // ignore
+  }
   location.reload();
 }
 </script>

@@ -1,6 +1,5 @@
 import { Router, Request, Response } from 'express';
 import bcrypt from 'bcryptjs';
-import jwt from 'jsonwebtoken';
 import {
   getAllItems,
   getAllUsers,
@@ -102,6 +101,8 @@ router.post('/register', (req: Request, res: Response, next) => {
 
       await createUser(username, email, passwordHash);
 
+      console.log(`Зарегистрирован новый пользователь: ${username}, ${email}`);
+
       res.status(201).json({ message: 'Пользователь успешно зарегистрирован' });
     } catch (err: any) {
       console.error('Ошибка регистрации:', err);
@@ -139,14 +140,9 @@ router.post('/login', (req: Request, res: Response, next) => {
       req.session.email = user.email;
       req.session.role = user.role; // если есть
 
-      const secret = process.env.JWT_SECRET || 'SECRET_KEY';
-      const token = jwt.sign(
-        { userId: user.id, email: user.email },
-        secret,
-        { expiresIn: '1h' }
-      );
-      console.log('Выдан токен:', token);
-      res.status(200).json({ token });
+      console.log(`Пользователь вошёл: ${user.email}, id=${user.id}`);
+
+      res.status(200).json({ message: 'Вход выполнен успешно' });
     } catch (err) {
       console.error('Ошибка входа:', err);
       res.status(500).json({ error: 'Ошибка сервера' });

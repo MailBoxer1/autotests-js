@@ -83,7 +83,6 @@ async function login() {
     });
     const data = await response.json();
     if (response.ok) {
-      localStorage.setItem('token', data.token);
       emit('success', 'Вход выполнен успешно');
       props.onLoginSuccess();
       close();

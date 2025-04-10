@@ -38,25 +38,17 @@ const user = ref<any>(null);
 const isAuthenticated = ref(false);
 
 async function loadProfile() {
-  const token = localStorage.getItem('token');
-  if (!token) {
-    isAuthenticated.value = false;
-    user.value = null;
-    return;
-  }
   try {
     const res = await apiFetch('/api/profile');
     if (res.ok) {
       const data = await res.json();
-      user.value = data.user;
+      user.value = data;
       isAuthenticated.value = true;
     } else {
-      localStorage.removeItem('token');
       isAuthenticated.value = false;
       user.value = null;
     }
   } catch {
-    localStorage.removeItem('token');
     isAuthenticated.value = false;
     user.value = null;
   }

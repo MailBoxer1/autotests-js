@@ -1,41 +1,25 @@
 import { describe, it, expect, vi } from 'vitest';
-import { authMiddleware } from './auth.js';
-import jwt from 'jsonwebtoken';
+import { sessionAuthMiddleware } from './auth.js';
 
-const secret = process.env.JWT_SECRET || 'SECRET_KEY';
-
-describe('authMiddleware', () => {
-  it('возвращает 401 если нет токена', () => {
-    const req = { headers: {} } as any;
+describe('sessionAuthMiddleware', () => {
+  it('возвращает 401 если пользователь не авторизован', () => {
+    const req = { session: {} } as any;
     const res = { status: vi.fn().mockReturnThis(), json: vi.fn() } as any;
     const next = vi.fn();
 
-    authMiddleware(req, res, next);
+    sessionAuthMiddleware(req, res, next);
 
     expect(res.status).toHaveBeenCalledWith(401);
-    expect(res.json).toHaveBeenCalled();
+    expect(res.json).toHaveBeenCalledWith({ error: 'Не авторизован' });
     expect(next).not.toHaveBeenCalled();
   });
 
-  it('возвращает 401 если токен невалидный', () => {
-    const req = { headers: { authorization: 'Bearer invalidtoken' } } as any;
+  it('вызывает next если пользователь авторизован', () => {
+    const req = { session: { userId: 1 } } as any;
     const res = { status: vi.fn().mockReturnThis(), json: vi.fn() } as any;
     const next = vi.fn();
 
-    authMiddleware(req, res, next);
-
-    expect(res.status).toHaveBeenCalledWith(401);
-    expect(res.json).toHaveBeenCalled();
-    expect(next).not.toHaveBeenCalled();
-  });
-
-  it('вызывает next если токен валидный', () => {
-    const token = jwt.sign({ userId: 1, email: 'test@example.com' }, secret);
-    const req = { headers: { authorization: 'Bearer ' + token } } as any;
-    const res = { status: vi.fn().mockReturnThis(), json: vi.fn() } as any;
-    const next = vi.fn();
-
-    authMiddleware(req, res, next);
+    sessionAuthMiddleware(req, res, next);
 
     expect(next).toHaveBeenCalled();
   });
