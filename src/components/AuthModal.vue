@@ -1,23 +1,28 @@
 <template>
-  <div v-if="visible" class="modal-overlay" @click.self="close">
+  <div v-if="visible" class="modal-overlay" 
+       @mousedown.self="onOverlayMouseDown" 
+       @mouseup.self="onOverlayMouseUp">
     <div class="modal">
-      <div class="tabs">
-        <button :class="{ active: mode === 'login' }" @click="mode = 'login'">Вход</button>
-        <button :class="{ active: mode === 'register' }" @click="mode = 'register'">Регистрация</button>
+      <div class="modal-header">
+        <div class="tabs">
+          <button :class="{ active: mode === 'login' }" @click="mode = 'login'">Вход</button>
+          <button :class="{ active: mode === 'register' }" @click="mode = 'register'">Регистрация</button>
+        </div>
+        <button class="close-button" @click="close">×</button>
       </div>
 
-      <form v-if="mode === 'login'" @submit.prevent="login">
-        <input v-model="loginEmail" type="email" placeholder="Email" required />
-        <input v-model="loginPassword" type="password" placeholder="Пароль" required />
-        <button type="submit">Войти</button>
-      </form>
+<form v-if="mode === 'login'" @submit.prevent="login">
+  <input v-model="loginEmail" name="email" type="email" placeholder="Email" required />
+  <input v-model="loginPassword" name="password" type="password" placeholder="Пароль" required />
+  <button type="submit">Войти</button>
+</form>
 
-      <form v-else @submit.prevent="register">
-        <input v-model="registerUsername" placeholder="Имя пользователя" required />
-        <input v-model="registerEmail" type="email" placeholder="Email" required />
-        <input v-model="registerPassword" type="password" placeholder="Пароль" required minlength="6" />
-        <button type="submit">Зарегистрироваться</button>
-      </form>
+<form v-else @submit.prevent="register">
+  <input v-model="registerUsername" name="username" placeholder="Имя пользователя" required />
+  <input v-model="registerEmail" name="email" type="email" placeholder="Email" required />
+  <input v-model="registerPassword" name="password" type="password" placeholder="Пароль" required minlength="6" />
+  <button type="submit">Зарегистрироваться</button>
+</form>
 
       <p v-if="message">{{ message }}</p>
     </div>
@@ -26,6 +31,25 @@
 
 <script setup lang="ts">
 import { ref, watch, defineProps, defineEmits } from 'vue';
+
+const clickStartedOnOverlay = ref(false);
+
+function onOverlayMouseDown(event: MouseEvent) {
+  if (!(event.target instanceof HTMLElement)) return;
+  if (!event.target.closest('.modal')) {
+    clickStartedOnOverlay.value = true;
+  } else {
+    clickStartedOnOverlay.value = false;
+  }
+}
+
+function onOverlayMouseUp(event: MouseEvent) {
+  if (!(event.target instanceof HTMLElement)) return;
+  if (!event.target.closest('.modal') && clickStartedOnOverlay.value) {
+    close();
+  }
+  clickStartedOnOverlay.value = false;
+}
 
 const props = defineProps<{
   visible: boolean;
@@ -91,7 +115,10 @@ async function register() {
     const data = await response.json();
     if (response.ok) {
       emit('success', 'Регистрация прошла успешно');
-      close();
+      // Автоматический вход после успешной регистрации
+      loginEmail.value = registerEmail.value;
+      loginPassword.value = registerPassword.value;
+      await login();
     } else {
       message.value = data.error || 'Ошибка регистрации';
     }
@@ -133,9 +160,38 @@ function close() {
   width: 300px;
 }
 
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.close-button {
+  background: transparent;
+  border: 2px solid red;
+  border-radius: 50%;
+  font-size: 20px;
+  font-weight: bold;
+  color: red;
+  width: 30px;
+  height: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.close-button:hover {
+  background-color: red;
+  color: white;
+  transform: scale(1.2);
+}
+
 .tabs {
   display: flex;
-  margin-bottom: 10px;
+  gap: 5px;
 }
 
 .tabs button {
