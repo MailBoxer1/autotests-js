@@ -1,19 +1,82 @@
 <template>
   <div id="app">
+    <div v-if="statusMessage" class="status-banner">{{ statusMessage }}</div>
+    <Header
+      @open-auth="openAuthModal"
+      :user="user"
+      :is-authenticated="isAuthenticated"
+/>
+
     <nav>
       <router-link to="/">Главная</router-link>
       <router-link to="/panel">Панель</router-link>
     </nav>
+
     <router-view />
+
+    <AuthModal
+      :visible="showAuthModal"
+      :initialMode="authMode"
+      @close="showAuthModal = false"
+      @success="showStatusMessage"
+      :on-login-success="loadProfile"
+    />
   </div>
 </template>
 
-<script lang="ts">
-import { defineComponent } from 'vue';
+<script setup lang="ts">
+import { ref, onMounted } from 'vue';
+import Header from './components/Header.vue';
+import AuthModal from './components/AuthModal.vue';
+import { apiFetch } from './api';
 
-export default defineComponent({
-  name: 'App',
+const showAuthModal = ref(false);
+const authMode = ref<'login' | 'register'>('login');
+const statusMessage = ref('');
+
+const user = ref<any>(null);
+const isAuthenticated = ref(false);
+
+async function loadProfile() {
+  const token = localStorage.getItem('token');
+  if (!token) {
+    isAuthenticated.value = false;
+    user.value = null;
+    return;
+  }
+  try {
+    const res = await apiFetch('/api/profile');
+    if (res.ok) {
+      const data = await res.json();
+      user.value = data.user;
+      isAuthenticated.value = true;
+    } else {
+      localStorage.removeItem('token');
+      isAuthenticated.value = false;
+      user.value = null;
+    }
+  } catch {
+    localStorage.removeItem('token');
+    isAuthenticated.value = false;
+    user.value = null;
+  }
+}
+
+onMounted(() => {
+  loadProfile();
 });
+
+function openAuthModal(mode: 'login' | 'register') {
+  authMode.value = mode;
+  showAuthModal.value = true;
+}
+
+function showStatusMessage(message: string) {
+  statusMessage.value = message;
+  setTimeout(() => {
+    statusMessage.value = '';
+  }, 3000);
+}
 </script>
 
 <style scoped>
@@ -49,5 +112,14 @@ nav a.router-link-exact-active {
   color: #42b983;
   font-weight: bold;
   border-bottom: 2px solid #42b983;
+}
+
+.status-banner {
+  background-color: #42b983;
+  color: white;
+  padding: 10px;
+  margin-bottom: 10px;
+  border-radius: 4px;
+  font-weight: bold;
 }
 </style>
