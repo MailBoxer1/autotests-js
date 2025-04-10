@@ -17,6 +17,7 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
 import { Bar } from 'vue-chartjs';
+import { apiFetch } from '../api';
 import {
   Chart,
   CategoryScale,
@@ -46,10 +47,10 @@ onMounted(async () => {
   const apiUrl = import.meta.env.VITE_API_URL;
 
   const [usersRes, postsRes, commentsRes, messagesRes] = await Promise.all([
-    fetch(`${apiUrl}/api/users`),
-    fetch(`${apiUrl}/api/posts`),
-    fetch(`${apiUrl}/api/comments`),
-    fetch(`${apiUrl}/api/messages`)
+    apiFetch(`${apiUrl}/api/users`),
+    apiFetch(`${apiUrl}/api/posts`),
+    apiFetch(`${apiUrl}/api/comments`),
+    apiFetch(`${apiUrl}/api/messages`)
   ]);
 
   const usersData = (await usersRes.json()).data;

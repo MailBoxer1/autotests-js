@@ -1,10 +1,11 @@
 import { createRouter, createWebHistory } from 'vue-router';
 import Panel from './components/Panel.vue';
+import Home from './components/Home.vue';
 
 const routes = [
   {
     path: '/',
-    redirect: '/panel'
+    component: Home
   },
   {
     path: '/panel',

@@ -18,7 +18,9 @@ app.use(express.json());
 // Подключение API маршрутов
 app.use('/api', apiRouter);
 
-// Запуск сервера
+ // Запуск сервера
 app.listen(PORT, () => {
   console.log(`Сервер запущен на порту ${PORT}`);
 });
+
+export default app;
