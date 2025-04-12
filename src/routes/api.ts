@@ -85,6 +85,25 @@ router.get('/messages', async (_req: Request, res: Response) => {
   }
 });
 
+router.get('/user', (req: Request, res: Response, next) => {
+  void (async () => {
+    const { email } = req.query;
+    if (!email || typeof email !== 'string') {
+      return res.status(400).json({ error: 'Необходимо указать email' });
+    }
+    try {
+      const user = await import('../db/database.js').then(m => m.getUserByEmail(email));
+      if (!user) {
+        return res.status(404).json({ error: 'Пользователь не найден' });
+      }
+      res.json({ data: user });
+    } catch (err) {
+      console.error('Ошибка поиска пользователя:', err);
+      res.status(500).json({ error: 'Ошибка сервера' });
+    }
+  })().catch(next);
+});
+
 router.post('/register', (req: Request, res: Response, next) => {
   void (async () => {
     try {
