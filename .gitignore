@@ -1,6 +1,13 @@
 # Prerequisites
 *.d
 
+*.txt
+*.png
+*.sql
+*.env
+*.sqlite
+*.svg
+
 # Object files
 *.o
 *.ko
@@ -50,3 +57,4 @@ modules.order
 Module.symvers
 Mkfile.old
 dkms.conf
+node_modules
