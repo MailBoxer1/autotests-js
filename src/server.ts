@@ -1,51 +1,42 @@
+process.on('uncaughtException', (err) => {
+  console.error('Uncaught Exception:', err);
+});
 import express from 'express';
 import cors from 'cors';
 import morgan from 'morgan';
 import dotenv from 'dotenv';
 import apiRouter from './routes/api.js';
-
 import session from 'express-session';
-import { RedisStore } from 'connect-redis';
-import { createClient } from 'redis';
-
 // Загрузка переменных окружения
 dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Redis client
-const redisClient = createClient();
-
-redisClient.connect().catch(console.error);
-
-const redisStore = new RedisStore({
-  client: redisClient
-});
-
 // Middleware
 app.use(cors());
 app.use(morgan('dev'));
 app.use(express.json());
 
+// Настройка сессий
 app.use(
   session({
-    store: redisStore,
-    secret: process.env.SESSION_SECRET || 'your-secret-key',
+    secret: process.env.SESSION_SECRET || 'SESSION_SECRET',
     resave: false,
     saveUninitialized: false,
-    cookie: {
-      secure: false, // true если HTTPS
-      httpOnly: true,
-      maxAge: 1000 * 60 * 60 // 1 час
-    }
+    cookie: { secure: false }, // Для разработки, в проде secure: true
   })
 );
 
-// Подключение API маршрутов
+// Основные API-роуты
 app.use('/api', apiRouter);
 
- // Запуск сервера
+// Тестовый маршрут
+app.get('/api/test', (_req, res) => {
+  res.json({ status: 'OK', message: 'Сервер работает!' });
+});
+
+// Запуск сервера
 app.listen(PORT, () => {
   console.log(`Сервер запущен на порту ${PORT}`);
 });

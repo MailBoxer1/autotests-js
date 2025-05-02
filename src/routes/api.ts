@@ -174,7 +174,13 @@ router.post('/login', (req: Request, res: Response, next) => {
 });
 
 router.get('/profile', sessionAuthMiddleware, (req: Request, res: Response) => {
-  res.json({ message: 'Доступ разрешён', userId: req.session.userId, email: req.session.email });
+  res.json({
+    message: 'Доступ разрешён',
+    user: {
+      userId: req.session.userId,
+      email: req.session.email,
+    },
+  });
 });
 
 router.post('/logout', (req: Request, res: Response) => {

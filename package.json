@@ -9,7 +9,8 @@
     "preview": "vite preview",
     "server": "nodemon --watch src --ext ts --exec \"node --loader ts-node/esm src/server.ts\"",
     "cypress:open": "cypress open --config baseUrl=http://localhost:5173",
-    "cypress:run": "cypress run --config baseUrl=http://localhost:5173"
+    "cypress:run": "cypress run --config baseUrl=http://localhost:5173",
+    "test:unit": "vitest run"
   },
   "devDependencies": {
     "@testing-library/vue": "^8.1.0",

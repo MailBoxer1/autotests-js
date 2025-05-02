@@ -23,6 +23,65 @@ const db = new sqlite3.Database('./database.sqlite', (err) => {
         }
       }
     );
+
+    // Создание таблицы posts
+    db.run(
+      `CREATE TABLE IF NOT EXISTS posts (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        user_id INTEGER NOT NULL,
+        title TEXT NOT NULL,
+        content TEXT NOT NULL,
+        created_at TEXT NOT NULL,
+        FOREIGN KEY(user_id) REFERENCES users(id)
+      )`,
+      (err) => {
+        if (err) {
+          console.error('Ошибка создания таблицы posts:', err.message);
+        } else {
+          console.log('Таблица posts готова');
+        }
+      }
+    );
+
+    // Создание таблицы comments
+    db.run(
+      `CREATE TABLE IF NOT EXISTS comments (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        post_id INTEGER NOT NULL,
+        user_id INTEGER NOT NULL,
+        content TEXT NOT NULL,
+        created_at TEXT NOT NULL,
+        FOREIGN KEY(post_id) REFERENCES posts(id),
+        FOREIGN KEY(user_id) REFERENCES users(id)
+      )`,
+      (err) => {
+        if (err) {
+          console.error('Ошибка создания таблицы comments:', err.message);
+        } else {
+          console.log('Таблица comments готова');
+        }
+      }
+    );
+
+    // Создание таблицы messages
+    db.run(
+      `CREATE TABLE IF NOT EXISTS messages (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        sender_id INTEGER NOT NULL,
+        receiver_id INTEGER NOT NULL,
+        content TEXT NOT NULL,
+        created_at TEXT NOT NULL,
+        FOREIGN KEY(sender_id) REFERENCES users(id),
+        FOREIGN KEY(receiver_id) REFERENCES users(id)
+      )`,
+      (err) => {
+        if (err) {
+          console.error('Ошибка создания таблицы messages:', err.message);
+        } else {
+          console.log('Таблица messages готова');
+        }
+      }
+    );
   }
 });
 

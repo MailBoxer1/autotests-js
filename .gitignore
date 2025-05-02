@@ -17,6 +17,9 @@ dist-ssr
 database.sqlite
 *.sql
 
+.txt
+.png
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

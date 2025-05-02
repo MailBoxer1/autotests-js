@@ -22,9 +22,26 @@ export const authMiddleware: RequestHandler = (req, res, next) => {
 };
 
 export const sessionAuthMiddleware: RequestHandler = (req, res, next) => {
+  // Если есть сессия — пропускаем
   if (req.session.userId) {
-    next();
-  } else {
-    res.status(401).json({ error: 'Не авторизован' });
+    return next();
   }
+
+  // Если нет сессии, пробуем JWT из заголовка Authorization
+  const authHeader = req.headers.authorization;
+  if (authHeader && authHeader.startsWith('Bearer ')) {
+    const token = authHeader.split(' ')[1];
+    try {
+      const secret = process.env.JWT_SECRET || 'SECRET_KEY';
+      const decoded = jwt.verify(token, secret) as any;
+      // Подставляем userId/email в req.session для совместимости
+      req.session.userId = decoded.userId;
+      req.session.email = decoded.email;
+      return next();
+    } catch {
+      // Падать не нужно, просто не авторизован
+    }
+  }
+
+  res.status(401).json({ error: 'Не авторизован' });
 };
