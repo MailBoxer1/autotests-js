@@ -12,6 +12,9 @@ dist
 dist-ssr
 *.local
 
+*.txt
+*.png
+
 # Environment and database
 .env
 database.sqlite
